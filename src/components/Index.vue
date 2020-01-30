@@ -16,24 +16,37 @@
 </template>
 
 <script>
-export default {
-  name: 'Index',
-  data (){
-  return {
-     smoothies: [
-       { title:'Ninja Wow',slug: 'ninja-wow',ingredients:['bananas','mangos','Apple',],id: '1'},
-       { title:'Ninja Wow',slug: 'ninja-wow',ingredients:['bananas','mangos','Apple'],id: '2'},
-     ]
-  }
-  },
-  methods:{
-    delteSmoothie(id){
-      this.smoothies = this.smoothies.filter(smoothie =>{
-        return  smoothie.id !=id
-      })
+    import db from '@/firebase/init'
+
+    export default {
+        name: 'Index',
+        data() {
+            return {
+                smoothies: []
+            }
+        },// data
+
+        methods: {
+            delteSmoothie(id) {
+                db.collection('smoothies').doc(id).delete().then(()=> {
+                  this.smoothies = this.smoothies.filter(smoothie => {
+                    return smoothie.id !== id
+                })
+                })
+            }
+        },// method
+
+        created() {
+            // fetch data from the firestore
+            db.collection('smoothies').get().then(snapshot => {
+                snapshot.forEach(doc => {
+                    let smoothie = doc.data();
+                    smoothie.id = doc.id;
+                    this.smoothies.push(smoothie)
+                }) //forEach
+            })// then
+        },// created
     }
-  }
-}
 </script>
 
 <style>
